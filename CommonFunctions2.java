@@ -984,7 +984,9 @@ public class CommonFunctions2 implements ExcelData {
 		try {
 			String rfElemenntSearch = elementSearch(driver1, elename);
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
-				eleSearched.getText();
+				System.out.println(eleSearched.getText());
+				ExcelRead.runTimeVar.put(variableName,eleSearched.getText() );	
+				ExcelRead.testCaseStatus = "pass";
 			}
 		} catch (Exception e) {
 			// write something here
