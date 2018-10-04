@@ -13,7 +13,7 @@ import reusables.CommonFunctions2;
 public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 	public static HashMap<String, String> mapOR = new HashMap<String, String>();
 	public static HashMap<String, String> runTimeVar = new HashMap<String, String>();
-	public static String testCaseError, receivedXML, corrid, currTestCaseName;
+	public static String testCaseError, receivedXML, corrid, currTestCaseName, currTestCaseId;
 	public static String testCaseStatus = "none", testCasePrint = "none";
 	public static String projectPath = System.getProperty("user.dir"), screenshotPath = "";
 	static ExtentReports extent;
@@ -22,10 +22,10 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 
-		String executionWorkBook = projectPath + "\\ExecutionSheet_UAT.xls";
+		String executionWorkBook = projectPath + "\\ProvideRuns.xls";
 		CommonFunctions2.setPropFile(projectPath + "\\src\\main\\resources\\element.properties");
-		extent = new ExtentReports(projectPath + "/Reports/ITT/WWS_ITT_TestReport.html", true);
-		extent.addSystemInfo("Environment", "ITT / UAT").addSystemInfo("User", "id848699");
+		extent = new ExtentReports(projectPath + "/Reports/ITT/WWS_ITT_ProvideVolumeRun.html", false);
+		extent.addSystemInfo("Environment", " ITT").addSystemInfo("User", "id848699");
 		extent.loadConfig(new File(projectPath + "/extent-config.xml"));
 
 		File file = new File(executionWorkBook);
@@ -48,10 +48,10 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 
 		for (int tsSheetIterator = 1; tsSheetIterator < tsSheetRowCount; tsSheetIterator++) {
 			String currTestSuiteName = tsSheet.getCell(1, tsSheetIterator).getContents();
-			System.out.println(currTestSuiteName);
+			// System.out.println(currTestSuiteName);
 
 			String currTestSuiteFlag = tsSheet.getCell(2, tsSheetIterator).getContents();
-			System.out.println(currTestSuiteFlag);
+			// System.out.println(currTestSuiteFlag);
 
 			if (currTestSuiteFlag.equalsIgnoreCase("y")) {
 				runTimeVar = new HashMap<String, String>();
@@ -61,6 +61,7 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 				int tcSheetColCount = tcSheet.getColumns();
 
 				for (int tcSheetIterator = 1; tcSheetIterator < tcSheetRowCount; tcSheetIterator++) {
+					currTestCaseId = tcSheet.getCell(0, tcSheetIterator).getContents();
 					currTestCaseName = tcSheet.getCell(2, tcSheetIterator).getContents();
 					System.out.println(currTestCaseName);
 					String currTestCaseFlag = tcSheet.getCell(3, tcSheetIterator).getContents();
@@ -78,7 +79,7 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 						// tcSheet.getCell(testCaseData,
 						// tcSheetIterator).getContents();
 						String currTestCaseBrowser = tcSheet.getCell(testcasebrowser, tcSheetIterator).getContents();
-						String[] currTestCaseIP = new String[20];
+						String[] currTestCaseIP = new String[30];
 
 						for (int tcIPIterator = testCaseInputStart; tcIPIterator < tcSheetColCount; tcIPIterator++) {
 							currTestCaseIP[tcIPIterator - testCaseInputStart] = tcSheet
@@ -97,7 +98,10 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 
 						for (int tsSSheetIterator = currTestCaseStartRow - 1; tsSSheetIterator < (currTestCaseStartRow
 								+ currTestCaseStepCount - 1); tsSSheetIterator++) {
+							// System.out.println(stepType +" , "+
+							// tsSSheetIterator);
 							String currTestStepType = tsSSheet.getCell(stepType, tsSSheetIterator).getContents();
+							// System.out.println(currTestStepType);
 							String currTestStepUDF = tsSSheet.getCell(stepName, tsSSheetIterator).getContents();
 							String currTestStepDescription = tsSSheet.getCell(stepDescription, tsSSheetIterator)
 									.getContents();
@@ -105,7 +109,7 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 							String currTestStepExec = tsSSheet.getCell(steptoBeExecuted, tsSSheetIterator)
 									.getContents();
 							;
-							String[] currTestStepIP = new String[10];
+							String[] currTestStepIP = new String[15];
 
 							for (int tsSIPIterator = testStepInputStart; tsSIPIterator < tsSSheetColCount; tsSIPIterator++) {
 								// System.out.println(tsSIPIterator);
@@ -143,8 +147,8 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 									}
 								}
 							}
-
-							if (currTestStepType.equalsIgnoreCase("BPC")) {
+							System.out.println("This is current row : " + tsSSheetIterator);
+							if (currTestStepType.equalsIgnoreCase("BPC") && currTestStepExec.equalsIgnoreCase("Y")) {
 								int bpcStartRow = Integer.parseInt(currTestStepIP[0]);
 								int bpcStepCount = Integer.parseInt(currTestStepIP[1]);
 
@@ -168,14 +172,6 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 										if (!bpcSheet.getCell(bpcIPIterator, bpcRowIterator).getContents().isEmpty()) {
 											currBPCTestStepIP[bpcIPIterator - testStepInputStart] = bpcSheet
 													.getCell(bpcIPIterator, bpcRowIterator).getContents();
-
-											// System.out.println("Input" +
-											// currBPCTestStepIP[bpcIPIterator -
-											// 5]);
-											// System.out.println(currBPCTestStepIP[bpcIPIterator
-											// - 5]);
-											// System.out.println(currBPCTestStepIP[bpcIPIterator
-											// - 5].substring(0, 1));
 
 											if (currBPCTestStepIP[bpcIPIterator - testStepInputStart].contains("::")) {
 												int indexIP = currBPCTestStepIP[bpcIPIterator - testStepInputStart]
@@ -217,17 +213,25 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 										}
 									}
 									if (currBPCTestStepExec.equalsIgnoreCase("Y")) {
-										
+										System.out.println("This is current row  in BPC: " + bpcRowIterator);
+
 										System.out.println("-------------------------------------------");
 										System.out.println("Step Name is : " + currBPCTestStepDescription);
 										testCasePrint = "none";
+										testCaseStatus = "none";
+										System.out.println(ExcelRead.testCaseStatus
+												+ " --------before reusable function-----------------------------------");
 										reusableFunctions(currTestCaseBrowser, currBPCTestStepUDF, currBPCTestStepIP);
+										System.out.println(ExcelRead.testCaseStatus
+												+ " --------after reusable function-----------------------------------");
 										if (currBPCTestStepReport.equalsIgnoreCase("Y")) {
-											if (testCaseStatus.equalsIgnoreCase("fail")) {
+											if (ExcelRead.testCaseStatus.equalsIgnoreCase("fail")) {
 												test.log(LogStatus.FAIL,
 														"Test step failed for : " + currBPCTestStepDescription);
 												test.log(LogStatus.FAIL, "with error as  : " + testCaseError);
-												driverobj.get().close();
+												// driverobj.get().close();
+												System.out
+														.println("--------to break-----------------------------------");
 												break;
 											} else {
 												if (testCasePrint.equals("none")) {
@@ -242,32 +246,46 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 												}
 											}
 										}
-										if (currBPCTestStepUDF.equalsIgnoreCase("rfElementClick")
-												|| currBPCTestStepUDF.equalsIgnoreCase("logout")
-												|| currBPCTestStepUDF.equalsIgnoreCase("getTextandCompare")) {
-											test.log(LogStatus.PASS, "Screenshot is  :", test.addScreenCapture(screenshotPath));
-										}
+										// if
+										// (currBPCTestStepUDF.equalsIgnoreCase("rfElementClick")
+										// ||
+										// currBPCTestStepUDF.equalsIgnoreCase("logout")
+										// ||
+										// currBPCTestStepUDF.equalsIgnoreCase("getTextandCompare"))
+										// {
+										// test.log(LogStatus.PASS, "Screenshot
+										// is :",
+										// test.addScreenCapture(screenshotPath));
+										// }
 										System.out.println("-------------------------------------------");
 									}
 
 								}
-								
+								if (testCaseStatus.equalsIgnoreCase("fail")) {
+									System.out.println("-------------------TO break after BPC------------------------");
+									break;
+								}
+
 							} else {
 								// test step starting
 
 								if (currTestStepExec.equalsIgnoreCase("Y")) {
+									System.out.println("This is current row : " + tsSSheetIterator);
 									System.out.println("-------------------------------------------");
 									System.out.println("Step Name is : " + currTestStepDescription);
 									testCasePrint = "none";
 									reusableFunctions(currTestCaseBrowser, currTestStepUDF, currTestStepIP);
+									System.out.println("testcase status" + testCaseStatus);
 									if (currTestStepReport.equalsIgnoreCase("Y")) {
 										if (testCaseStatus.equalsIgnoreCase("fail")) {
 											test.log(LogStatus.FAIL,
 													"Test step failed for : " + currTestStepDescription);
 											test.log(LogStatus.FAIL, "with error as  : " + testCaseError);
-											test.log(LogStatus.FAIL, "Screenshot is  :",
-													test.addScreenCapture(screenshotPath));
-											driverobj.get().close();
+											// test.log(LogStatus.FAIL,
+											// "Screenshot is :",
+											// test.addScreenCapture(screenshotPath));
+											// driverobj.get().close();
+											// driverobj.get().quit();
 											break;
 										} else {
 											if (testCasePrint.equals("none")) {
@@ -284,21 +302,33 @@ public class ExcelRead extends ExcelDriverBridge implements ExcelData {
 									}
 									System.out.println("-------------------------------------------");
 								}
-								if (currTestStepUDF.equalsIgnoreCase("rfElementClick")
-										|| currTestStepUDF.equalsIgnoreCase("logout")
-										|| currTestStepUDF.equalsIgnoreCase("getTextandCompare")) {
-									test.log(LogStatus.PASS, "Screenshot is  :", test.addScreenCapture(screenshotPath));
-								}
+								// if
+								// (currTestStepUDF.equalsIgnoreCase("rfElementClick")
+								// || currTestStepUDF.equalsIgnoreCase("logout")
+								// ||
+								// currTestStepUDF.equalsIgnoreCase("getTextandCompare"))
+								// {
+								// test.log(LogStatus.PASS, "Screenshot is :",
+								// test.addScreenCapture(screenshotPath));
+								// }
 
 							}
-							if (testCaseStatus.equalsIgnoreCase("fail")) {
-								driverobj.get().close();
-								break;
-							}
+
+						}
+						if (testCaseStatus.equalsIgnoreCase("fail")) {
+							// driverobj.get().close();
+							extent.endTest(test);
+							driverobj.get().quit();
+							// break;
+						} else {
+							extent.endTest(test);
+							driverobj.get().quit();
 						}
 						Thread.sleep(3000);
+
+						// driverobj.get().close();
+						// driverobj.get().quit();
 					}
-					extent.endTest(test);
 				}
 			}
 		}
