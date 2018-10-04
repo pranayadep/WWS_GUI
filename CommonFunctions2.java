@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,6 +44,12 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 import testScripts.ExcelData;
 import testScripts.ExcelRead;
 
@@ -55,7 +62,7 @@ public class CommonFunctions2 implements ExcelData {
 	public static Robot robot;
 
 	public static void sleep(String millSecs) {
-		long millSec = Integer.parseInt(millSecs)*1000;
+		long millSec = Integer.parseInt(millSecs) * 1000;
 		try {
 			Thread.sleep(millSec);
 		} catch (NumberFormatException e) {
@@ -67,14 +74,43 @@ public class CommonFunctions2 implements ExcelData {
 
 	public static WebDriver SetBrowser(String strBrowser) throws IOException, InterruptedException {
 
-		if (strBrowser.equalsIgnoreCase("IE") || strBrowser.equalsIgnoreCase("Internet Explorer")) {
-			driverobj.set(setIEDriver(System.getProperty("user.dir") + "\\drivers\\IEDriverServer64.exe"));
-		} else if (strBrowser.equalsIgnoreCase("Chrome") || strBrowser.equalsIgnoreCase("GoogleChrome")
-				|| strBrowser.equalsIgnoreCase("Google Chrome")) {
-			Thread.sleep(500);
-			driverobj.set(setChromeDriver("C:\\Users\\id848699\\Desktop\\Driver\\IBM\\chromedriver.exe"));
+		try {
 
-			// driverobj.set(setChromeDriver("C:\\Data\\chromedriver\\chromedriver.exe"));
+			if (strBrowser.equalsIgnoreCase("IE") || strBrowser.equalsIgnoreCase("Internet Explorer")) {
+				driverobj.set(setIEDriver(System.getProperty("user.dir") + "\\drivers\\IEDriverServer64.exe"));
+			} else if (strBrowser.equalsIgnoreCase("Chrome") || strBrowser.equalsIgnoreCase("GoogleChrome")
+					|| strBrowser.equalsIgnoreCase("Google Chrome")) {
+				Thread.sleep(500);
+				driverobj.set(setChromeDriver(
+						"C:\\Program Files (x86)\\Selenium\\WebDrivers\\ChromeDrivers\\2.37\\chromedriver.exe"));
+			}
+			ExcelRead.testCaseStatus = "pass";
+		} catch (Exception e) {
+			e.printStackTrace();
+			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
+		}
+		return driverobj.get();
+	}
+
+	public static WebDriver SetBrowser2(String strBrowser) throws IOException, InterruptedException {
+
+		try {
+
+			if (strBrowser.equalsIgnoreCase("IE") || strBrowser.equalsIgnoreCase("Internet Explorer")) {
+				driverobj.set(setIEDriver(System.getProperty("user.dir") + "\\drivers\\IEDriverServer64.exe"));
+			} else if (strBrowser.equalsIgnoreCase("Chrome") || strBrowser.equalsIgnoreCase("GoogleChrome")
+					|| strBrowser.equalsIgnoreCase("Google Chrome")) {
+				Thread.sleep(500);
+				driverobj.set(setChromeDriver("C:\\Users\\id848699\\Desktop\\Driver\\IBM\\chromedriver2.exe"));
+			}
+			ExcelRead.testCaseStatus = "pass";
+		} catch (Exception e) {
+			e.printStackTrace();
+			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 		return driverobj.get();
 	}
@@ -109,9 +145,9 @@ public class CommonFunctions2 implements ExcelData {
 			}
 			ExcelRead.testCaseStatus = "pass";
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 		}
 	}
@@ -157,6 +193,7 @@ public class CommonFunctions2 implements ExcelData {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ExcelRead.testCaseError = e.getMessage() + "No values returned from xpath";
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 		}
 	}
@@ -195,6 +232,8 @@ public class CommonFunctions2 implements ExcelData {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -267,10 +306,12 @@ public class CommonFunctions2 implements ExcelData {
 			System.out.println(Message + " : " + value);
 			ExcelRead.testCaseStatus = "pass";
 			ExcelRead.testCasePrint = Message + " : " + value;
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, value);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.getMessage();
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 		}
 	}
@@ -303,6 +344,8 @@ public class CommonFunctions2 implements ExcelData {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -334,6 +377,7 @@ public class CommonFunctions2 implements ExcelData {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 			ExcelRead.testCaseError = e.getMessage();
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -374,6 +418,7 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			e.getMessage();
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 		}
 	}
@@ -384,6 +429,7 @@ public class CommonFunctions2 implements ExcelData {
 			rfElemenntSearch = elementSearch(driver1, elename);
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
 				ExcelRead.testCaseStatus = "pass";
+				eleSearched.clear();
 				System.out.println("Sending this :  " + value + " to " + elename);
 				eleSearched.sendKeys(value);
 				System.out.println("Sent this : " + value + " to " + elename);
@@ -400,7 +446,8 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception ex) {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
-			ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -427,6 +474,7 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to handle
 			e.getMessage();
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -436,6 +484,7 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to handle
 			e.getMessage();
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -451,8 +500,8 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception ex) {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
-			ex.getMessage();
 		}
 	}
 
@@ -505,12 +554,13 @@ public class CommonFunctions2 implements ExcelData {
 			System.setProperty("webdriver.chrome.driver", strChromeDriverPath);
 			ChromeOptions options = new ChromeOptions();
 			options.addArguments("start-maximized");
+			options.addArguments("--incognito");
 			options.setExperimentalOption("useAutomationExtension", false);
 			dcChrome = DesiredCapabilities.chrome();
 			dcChrome.setCapability(ChromeOptions.CAPABILITY, options);
 			ExcelRead.testCaseStatus = "pass";
 		} catch (Exception e) {
-			e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 		}
 		return new ChromeDriver(dcChrome);
@@ -535,6 +585,9 @@ public class CommonFunctions2 implements ExcelData {
 			driver1.quit();
 		} catch (Exception e) {
 			// need to write
+			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -547,6 +600,9 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to write
 			e.printStackTrace();
+			ExcelRead.testCaseError = "Frame error : " + e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 		return driver1;
 	}
@@ -557,6 +613,8 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to write
 			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -567,6 +625,8 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to write
 			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -577,6 +637,8 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to write
 			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -589,6 +651,8 @@ public class CommonFunctions2 implements ExcelData {
 			objectMapProps.load(fis);
 		} catch (IOException e) {
 			e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -606,7 +670,9 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception e) {
 			// need to write
 			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, "Element not present in the property file");
 			ExcelRead.testCaseStatus = "fail";
+			ExcelRead.testCaseError = "Element not present in the property file";
 		}
 		return arr;
 	}
@@ -621,10 +687,14 @@ public class CommonFunctions2 implements ExcelData {
 					+ "\\" + ExcelRead.currTestCaseName + "\\" + screenshotFileName + ".jpg";
 		} catch (IOException e1) {
 			e1.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e1.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		} catch (NullPointerException npe) {
 			ExcelRead.screenshotPath = System.getProperty("user.dir") + "\\WWS_GUI\\errorScreens\\" + LocalDate.now()
 					+ "\\" + ExcelRead.currTestCaseName + "\\" + screenshotFileName + ".jpg";
 			npe.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, npe.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 
 	}
@@ -637,7 +707,8 @@ public class CommonFunctions2 implements ExcelData {
 		try {
 			String element[] = null;
 			element = getObjectValue2(locator);
-			WebDriverWait wait = new WebDriverWait(driver, 50);
+			// System.out.println(element);
+			WebDriverWait wait = new WebDriverWait(driver, 20);
 			Thread.sleep(500);
 			if (element[1].trim().equalsIgnoreCase("id")) {
 				wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(element[0])));
@@ -645,6 +716,7 @@ public class CommonFunctions2 implements ExcelData {
 				return "Pass";
 			} else if (element[1].trim().equalsIgnoreCase("xpath")) {
 				System.out.println("in xpath");
+				// wait.until(ExpectedConditions.elementToBeClickable(locator));
 				wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(element[0])));
 				eleSearched = driver.findElement(By.xpath(element[0]));
 				return "Pass";
@@ -671,13 +743,14 @@ public class CommonFunctions2 implements ExcelData {
 			} else {
 				return "Fail@" + "please select valid locator type";
 			}
-		} catch (Exception ex) {
+		} catch (NoClassDefFoundError ex) {
 			captureScreenshot(locator, driverobj.get());
-			ExcelRead.testCaseError = "Not able to find element on screen due to exception >>> " + ex.getMessage();
+			ExcelRead.testCaseError = "Not able to find element on screen due to exception >>> " + ex.getMessage()
+					+ " Please check element name";
 			System.out.println(ExcelRead.testCaseError);
-			ExcelRead.testCaseStatus = "Fail";
-			return "Fail@" + ex.getMessage();
-
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ExcelRead.testCaseError);
+			ExcelRead.testCaseStatus = "fail";
+			return "Fail" + ex.getMessage();
 		}
 
 	}
@@ -691,6 +764,8 @@ public class CommonFunctions2 implements ExcelData {
 			elementclick("LoginBtnClick", driver1);
 		} catch (Exception e) {
 			e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 
@@ -716,13 +791,12 @@ public class CommonFunctions2 implements ExcelData {
 		try {
 			String rfElemenntSearch = null;
 			rfElemenntSearch = elementSearch(driver1, locator);
-
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
 				ExcelRead.testCaseStatus = "pass";
 				System.out.println("Clicking on :  " + locator);
 				System.out.println(eleSearched.getText());
-				//WebDriverWait wait = new WebDriverWait(driver1, 10);
-			//	wait.until(ExpectedConditions.elementToBeClickable(eleSearched));
+				// WebDriverWait wait = new WebDriverWait(driver1, 10);
+				// wait.until(ExpectedConditions.elementToBeClickable(eleSearched));
 				// ((JavascriptExecutor)
 				// driver1).executeScript("arguments[0].click();", eleSearched);
 				eleSearched.click();
@@ -733,11 +807,12 @@ public class CommonFunctions2 implements ExcelData {
 				ExcelRead.testCaseStatus = "fail";
 				System.out.println("Status is : " + rfElemenntSearch);
 				System.out.println("Element not found " + locator);
+				CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ExcelRead.testCaseError);
 			}
 		} catch (Exception ex) {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
-			ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not clickable ");
 		}
@@ -767,27 +842,25 @@ public class CommonFunctions2 implements ExcelData {
 					Thread.sleep(200);
 					System.out.println("Clicked on : " + elementList[i]);
 				} else {
-					// need to write
 					ExcelRead.testCaseStatus = "fail";
 					System.out.println("Status is : " + rfElemenntSearch);
 					System.out.println("Element not found " + elementList[i]);
 				}
-
 			}
 
 		} catch (Exception ex) {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
 			ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not clickable ");
 		}
 	}
-	
+
 	/*
-	 * Method : doubleClick Input : Element name 
-	 * Double clicks on the given element using Action class 
-	 * Editor : PranayKumar Infosys ltd
+	 * Method : doubleClick Input : Element name Double clicks on the given
+	 * element using Action class Editor : PranayKumar Infosys ltd
 	 */
 	public static void doubleClick(String locator, WebDriver driver1) {
 		try {
@@ -814,15 +887,16 @@ public class CommonFunctions2 implements ExcelData {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
 			ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not clickable ");
 		}
 	}
-	
+
 	/*
-	 * Method :  highlightElement
-	 * Inputs : Locator and WebDriver
-	 * It will locate the element and set the property of the elements to background yellow and give border using JavascriptExecutor
+	 * Method : highlightElement Inputs : Locator and WebDriver It will locate
+	 * the element and set the property of the elements to background yellow and
+	 * give border using JavascriptExecutor
 	 */
 	public static void highlightElement(String locator, WebDriver driver1) {
 		try {
@@ -831,8 +905,9 @@ public class CommonFunctions2 implements ExcelData {
 
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
 				ExcelRead.testCaseStatus = "pass";
-                JavascriptExecutor js = (JavascriptExecutor) driver1;
-                js.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", eleSearched);
+				JavascriptExecutor js = (JavascriptExecutor) driver1;
+				js.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",
+						eleSearched);
 
 			} else {
 				// need to write
@@ -844,6 +919,7 @@ public class CommonFunctions2 implements ExcelData {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
 			ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not clickable ");
 		}
@@ -869,6 +945,7 @@ public class CommonFunctions2 implements ExcelData {
 		} catch (Exception ex) {
 			// need to write
 			ExcelRead.testCaseError = ex.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println(ex.getMessage());
 		}
@@ -974,26 +1051,30 @@ public class CommonFunctions2 implements ExcelData {
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
+			ExcelRead.testCaseError = e.getMessage();
 		}
 
 	}
 
-	public static String getText(String elename, String variableName, WebDriver driver1) {
-
-		String text = null;
+	public static void getText(String elename, String variableName, WebDriver driver1) {
 		try {
 			String rfElemenntSearch = elementSearch(driver1, elename);
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
-				System.out.println(eleSearched.getText());
-				ExcelRead.runTimeVar.put(variableName,eleSearched.getText() );	
+				System.out.println("Value found is " + eleSearched.getText());
+				ExcelRead.runTimeVar.put(variableName, eleSearched.getText());
 				ExcelRead.testCaseStatus = "pass";
+			} else {
+				System.out.println();
+				ExcelRead.testCaseError = rfElemenntSearch;
+				ExcelRead.testCaseStatus = "fail";
 			}
 		} catch (Exception e) {
-			// write something here
-			ExcelRead.testCaseStatus = "fail";
 			ExcelRead.testCaseError = e.getMessage();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
-		return text;
 	}
 
 	/*
@@ -1035,6 +1116,7 @@ public class CommonFunctions2 implements ExcelData {
 			}
 		} catch (Exception e) {
 			// write something here
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			ExcelRead.testCaseError = e.getMessage();
 		}
@@ -1077,8 +1159,8 @@ public class CommonFunctions2 implements ExcelData {
 				ExcelRead.testCaseStatus = "fail";
 				System.out.println("Element not found " + rfElemenntSearch);
 			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			ExcelRead.testCaseError = e.getMessage();
 			e.printStackTrace();
@@ -1113,9 +1195,12 @@ public class CommonFunctions2 implements ExcelData {
 			} else {
 				ExcelRead.testCaseStatus = "fail";
 				System.out.println("Element not present");
+				ExcelRead.testCasePrint = "Element not present";
+				CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ExcelRead.testCasePrint);
 			}
 
 		} catch (Exception e) {
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not selected");
 			System.out.println(e.getMessage() + elename);
@@ -1135,15 +1220,18 @@ public class CommonFunctions2 implements ExcelData {
 			String rfElemenntSearch = elementSearch(driver1, elename);
 			Select select = new Select(eleSearched);
 			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
-				System.out.println("Trying to select from Dropdown-----------"+ value);
+				System.out.println("Trying to select from Dropdown-----------" + value);
 				select.selectByVisibleText(value);
 				ExcelRead.testCaseStatus = "pass";
 				Thread.sleep(1000);
 			} else {
 				ExcelRead.testCaseStatus = "fail";
+				ExcelRead.testCasePrint = "Element not present";
+				CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ExcelRead.testCasePrint);
 				System.out.println("Element not present");
 			}
 		} catch (Exception e) {
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not selected");
 			System.out.println(e.getMessage() + elename);
@@ -1169,7 +1257,7 @@ public class CommonFunctions2 implements ExcelData {
 					i++;
 					String textContent = text.getAttribute("value");
 					if (textContent.toLowerCase().contains(value.toLowerCase())) {
-						count = i-1;
+						count = i - 1;
 						break;
 					}
 				}
@@ -1184,22 +1272,65 @@ public class CommonFunctions2 implements ExcelData {
 
 			} else {
 				ExcelRead.testCaseStatus = "fail";
+				ExcelRead.testCasePrint = "Element not present";
+				CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ExcelRead.testCasePrint);
 				System.out.println("Element not present");
 			}
 
 		} catch (Exception e) {
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not selected");
 			System.out.println(e.getMessage() + elename);
 		}
 
 	}
-	
-	
+
+	public static void rfWriteToExcel(String pKey, String usrComment) {
+		try {
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date date = new Date();
+			System.out.println(dateFormat.format(date)); // 2016/11/16 12:08:43
+			String vDataWB = System.getProperty("user.dir") + "\\Reports\\Data.xls";
+			File file = new File(vDataWB);
+			// Workbook.getWorkbook(file);
+			// Workbook wb = Workbook.getWorkbook(file);
+			// Sheet vSheet = wb.getSheet("Data");
+			WritableWorkbook workbook;
+			WritableSheet sheet;
+			Workbook workbookRead = Workbook.getWorkbook(new File(vDataWB));
+			workbook = Workbook.createWorkbook(file, workbookRead);
+			sheet = workbook.getSheet("Data");
+			int vRowCount = sheet.getRows();
+			System.out.println("Ths is rows : " + vRowCount);
+			WritableCellFormat cellFormat = new WritableCellFormat();
+			cellFormat.setWrap(true);
+			Label label0 = new Label(0, (vRowCount), Integer.toString(vRowCount), cellFormat);
+			sheet.addCell(label0);
+			// System.out.println("Ths is rows : 1");
+			Label label1 = new Label(1, (vRowCount), pKey, cellFormat);
+			sheet.addCell(label1);
+			// System.out.println("Ths is rows : 2");
+			Label label2 = new Label(2, (vRowCount), usrComment, cellFormat);
+			sheet.addCell(label2);
+			// System.out.println("Ths is rows : 3");
+			Label label3 = new Label(3, (vRowCount), dateFormat.format(date), cellFormat);
+			sheet.addCell(label3);
+			// System.out.println("Ths is rows : 4");
+			workbook.write();
+			workbook.close();
+			System.out.println("Data added : " + usrComment);
+		} catch (Exception ex) {
+			ExcelRead.testCaseStatus = "fail";
+			ExcelRead.testCaseError = ex.getMessage();
+			System.out.println(ex.getStackTrace());
+		}
+	}
+
 	public static void uploadFile(String elename, String value, WebDriver driver1) {
 		try {
 			String rfElemenntSearch = elementSearch(driver1, elename);
-			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {				
+			if (rfElemenntSearch.equalsIgnoreCase("Pass")) {
 
 			} else {
 				ExcelRead.testCaseStatus = "fail";
@@ -1208,11 +1339,30 @@ public class CommonFunctions2 implements ExcelData {
 			}
 
 		} catch (Exception e) {
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
 			ExcelRead.testCaseStatus = "fail";
 			System.out.println("Element not found");
 			System.out.println(e.getMessage() + elename);
 		}
 
+	}
+
+	public static void selectPriorityBit(String value, WebDriver driver1) {
+		try {
+			if (value.equalsIgnoreCase("P0") || value.equalsIgnoreCase("P0BIS")) {
+				selectDropDown("order_Priority_BitO", value, driver1);
+			} else if (value.equalsIgnoreCase("P1") || value.equalsIgnoreCase("P1BIS")) {
+				selectDropDown("order_Priority_Bit1", value, driver1);
+			} else if (value.equalsIgnoreCase("P3") || value.equalsIgnoreCase("P3BIS")) {
+				selectDropDown("order_Priority_Bit3", value, driver1);
+			} else if (value.equalsIgnoreCase("P5") || value.equalsIgnoreCase("P5BIS")) {
+				selectDropDown("order_Priority_Bit3", value, driver1);
+			}
+		} catch (Exception ex) {
+			System.out.println("Error : " + ex.getMessage());
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
+			ExcelRead.testCaseStatus = "fail";
+		}
 	}
 
 	public boolean elementEnabled(String elename, String eleType, WebDriver driver1) {
@@ -1232,7 +1382,8 @@ public class CommonFunctions2 implements ExcelData {
 				// need to write
 			}
 		} catch (Exception ex) {
-			// need to write
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 		return false;
 	}
@@ -1256,6 +1407,8 @@ public class CommonFunctions2 implements ExcelData {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 		return false;
 	}
@@ -1267,6 +1420,8 @@ public class CommonFunctions2 implements ExcelData {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, ex.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
 	}
 	/*
@@ -1320,18 +1475,11 @@ public class CommonFunctions2 implements ExcelData {
 				ExcelRead.testCaseStatus = "fail";
 				System.out.println("Element not present");
 			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
+			CommonFunctions2.rfWriteToExcel(ExcelRead.currTestCaseId, e.getMessage());
+			ExcelRead.testCaseStatus = "fail";
 		}
-
-	}
-
-	/*
-	 * Click on Element using Sikuli
-	 */
-
-	public static void sclick(String imagePath) {
 
 	}
 }
